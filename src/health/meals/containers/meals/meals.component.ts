@@ -32,6 +32,12 @@ import { Meal, MealsService } from '../../../shared/services/meals/meals.service
           <img src="/img/face.svg"/>
           No meals, add a new one to start
         </div>
+
+        <list-item
+          *ngFor="let meal of meals"
+          [item]="meal"
+        >
+        </list-item>
       </div>
       <ng-template #loading>
         <div class="message">
@@ -46,6 +52,7 @@ import { Meal, MealsService } from '../../../shared/services/meals/meals.service
 export class MealsComponent implements OnInit, OnDestroy {
   meals$: Observable<Meal[]>
   subscription: Subscription
+
   constructor(
     private mealsService: MealsService,
     private store: Store
