@@ -15,7 +15,7 @@ import { AuthService, User } from '../../../auth/shared/services/auth/auth.servi
     <div>
       <app-header
         [user]="user$ | async"
-        (logout)="onLogout($event)"
+        (logout)="onLogout()"
       ></app-header>
 
       <app-nav

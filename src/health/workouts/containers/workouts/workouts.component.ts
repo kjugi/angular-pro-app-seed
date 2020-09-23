@@ -12,7 +12,7 @@ import { Workout, WorkoutsService } from '../../../shared/services/workouts/work
     <div class="workouts">
       <div class="workouts__title">
         <h1>
-          <img src="/img/food.svg" />
+          <img src="/img/workout.svg" />
 
           Your workouts
         </h1>
