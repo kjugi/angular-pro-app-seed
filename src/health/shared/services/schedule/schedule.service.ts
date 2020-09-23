@@ -3,11 +3,14 @@ import { AngularFireDatabase } from 'angularfire2/database'
 
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
+
 import { Store } from 'store';
 
 import 'rxjs/add/operator/do'
 import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/switchMap'
+import 'rxjs/add/operator/withLatestFrom'
 
 import { Meal } from '../meals/meals.service'
 import { Workout } from '../workouts/workouts.service'
@@ -32,6 +35,40 @@ export interface ScheduleList {
 @Injectable()
 export class ScheduleService {
   private date$ = new BehaviorSubject(new Date())
+  private section$ = new Subject()
+  private itemList$ = new Subject()
+
+  items$ = this.itemList$
+    .withLatestFrom(this.section$)
+    .map(([ items, section ]: any) => {
+      const id = section.data.$key
+
+      const defaults: ScheduleItem = {
+        workouts: null,
+        meals: null,
+        section: section.section,
+        timestamp: new Date(section.day).getTime()
+      }
+
+      const payload = {
+        ...(id ? section.data : defaults),
+        ...items
+      }
+
+      if (id) {
+        return this.db.object(`schedule/${this.uid}/${id}`).update(payload)
+      } else {
+        return this.db.list(`schedule/${this.uid}`).push(payload)
+      }
+    })
+
+  selected$ = this.section$
+    .do((next: any) => this.store.set('selected', next))
+
+  list$ = this.section$
+    .map((value: any) => this.store.value[value.type])
+    .do((next: any) => this.store.set('list', next))
+
 
   schedule$: Observable<ScheduleItem[]> = this.date$
     .do((next: any) => {
@@ -82,7 +119,15 @@ export class ScheduleService {
     return this.authService.user.uid
   }
 
+  updateItems(items: string[]) {
+    this.itemList$.next(items)
+  }
+
   updateDate(date: Date) {
     this.date$.next(date)
+  }
+
+  selectSection(event: any) {
+    this.section$.next(event)
   }
 }

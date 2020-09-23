@@ -21,6 +21,7 @@ import { ScheduleItem, ScheduleList } from '../../../shared/services/schedule/sc
         *ngFor="let section of sections; let i = index;"
         [name]="section.name"
         [section]="getSections(section.key)"
+        (select)="selectSection($event, section.key)"
       >
       </schedule-section>
     </div>
@@ -61,6 +62,9 @@ export class ScheduleCalendarComponent implements OnChanges {
   @Output()
   change = new EventEmitter<Date>()
 
+  @Output()
+  select = new EventEmitter<any>()
+
   constructor() {}
 
   ngOnChanges() {
@@ -70,6 +74,19 @@ export class ScheduleCalendarComponent implements OnChanges {
 
   getSections(name: string): ScheduleItem {
     return this.items && this.items[name] || {}
+  }
+
+  selectSection(event: any, section: string) {
+    // { type, assigned, data }
+    const day = this.selectedDay
+
+    this.select.emit({
+      type: event.type,
+      assigned: event.assigned,
+      section,
+      day,
+      data: event.data
+    })
   }
 
   selectDay(index: number) {
